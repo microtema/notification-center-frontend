@@ -1,0 +1,33 @@
+{
+  "name": "notification-center-client",
+  "description": "Message Notification center client",
+  "main": "index.js",
+  "authors": [
+    "Mario Tema"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "Portal",
+    "ReactJS",
+    "Flux",
+    "JBoss",
+    "SQL"
+  ],
+  "dependencies": {
+    "flux": "2.1.1",
+    "react": "0.14.6",
+    "bootstrap": "3.3.6",
+    "eventEmitter": "4.3.0",
+    "underscore": "1.8.3",
+    "eonasdan-bootstrap-datetimepicker": "~4.17.37"
+  },
+  "homepage": "https://github.com/sevenfate/notification-center-client",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
