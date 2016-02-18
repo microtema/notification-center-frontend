@@ -28,12 +28,13 @@ var MessageNotificationActionBar = React.createClass({
                         </div>
                     </form>
                     <ul className="nav navbar-nav navbar-right">
-                        <li className={this.state.active ? 'active': ''}><a onClick={this.requestAll}
+                        <li className={this.state.active ? 'active': ''} title={'['+this.state.countUnreaded + '] Unreaded messages'}><a onClick={this.requestAll}
                                                                             className="navbar-brand"
                                                                             href="#">{this.state.countUnreaded}</a></li>
-                        <li className={this.state.active ? 'active': ''}><a onClick={this.requestAll}
+                        <li className={this.state.active ? 'active': ''}title="Reload" ><a onClick={this.requestAll}
                                                                             className="navbar-brand" href="#"><span
-                            className="glyphicon glyphicon-retweet" aria-hidden="true"></span></a></li>
+                            className="glyphicon glyphicon-retweet img-responsive avatar" aria-hidden="true"></span></a>
+                        </li>
                     </ul>
                 </div>
             </div>

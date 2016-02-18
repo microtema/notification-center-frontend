@@ -32,16 +32,14 @@ var MessageEntry = React.createClass({
                     </div>
                 </div>
             </td>
-            <td className="dropdown-toggle">
-                <a href="#"><input type="checkbox" checked={this.props.data.checked} onChange={this.checkEntry}/></a>
+            <td className="dropdown-toggle" title="Select message">
+                <a href="#" onClick={this.checkEntry}><span className={this.props.data.checked ? 'glyphicon glyphicon-check': 'glyphicon glyphicon-unchecked'} aria-hidden="true"></span></a>
             </td>
-            <td className="action">
-                <a href="#" onClick={this.markEntry}><span className="glyphicon glyphicon-eye-open"
-                                                           aria-hidden="true"></span></a>
+            <td className="action" title={this.props.data.type == 'UNREAD' ? 'Mark message as read' : ''}>
+                <a href="#" onClick={this.markEntry}><span className="glyphicon glyphicon-bookmark" aria-hidden="true"></span></a>
             </td>
-            <td className="action">
-                <a href="#" onClick={this.deleteEntry}><span className="glyphicon glyphicon-remove"
-                                                             aria-hidden="true"></span></a>
+            <td className="action" title="Delete message">
+                <a href="#" onClick={this.deleteEntry}><span className="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
             </td>
         </tr>
     }

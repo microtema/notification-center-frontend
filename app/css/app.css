@@ -1,27 +1,28 @@
 table.message-motification-table {
     background-color: #fdfdfd;
 }
-table.message-motification-table .index{
+
+table.message-motification-table .index {
     width: 20px;
 }
 
-table.message-motification-table td.description{
+table.message-motification-table td.description {
     padding-left: 25px;
 }
 
-table.message-motification-table .dropdown-toggle{
+table.message-motification-table .dropdown-toggle {
     padding-right: 10px;
 }
 
-table.message-motification-table .action{
+table.message-motification-table .action {
     width: 30px;
 }
 
-table.message-motification-table img{
+table.message-motification-table img {
     margin: 5px 10px;
 }
 
-table.message-motification-table p{
+table.message-motification-table p {
     padding-right: 10px;
 }
 
@@ -30,12 +31,12 @@ div.message-motification-container {
     background-image: url("https://www.udg.de/wp-content/uploads/2014/07/location_stage_karlsruhe.jpg");
 }
 
-div.message-motification-header{
+div.message-motification-header {
     height: 90px;
     padding: 10px;
 }
 
-div.message-motification-header h6{
+div.message-motification-header h6 {
     color: #ffffff;
     padding-right: 10px;
     padding-top: 55px;
