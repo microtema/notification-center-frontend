@@ -1,8 +1,7 @@
 #Describe Message Notification Project
 
 ### Install
-npm install ( install all in package.json)
-
+* **npm install:** ( install all in package.json)
 * **bower update:**  ( install all dependencies in bower.json)
 * **grunt server:**  ( start node.js server)
 * **grunt install:** ( compile , test, build)
