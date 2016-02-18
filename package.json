@@ -1,6 +1,6 @@
 {
   "name": "notification-center-client",
-  "version": "1.0.0",
+  "version": "1.0.0-SNAPSHOT",
   "description": "npm install\r bower update\r grunt server\r grunt install\r grunt test\r grunt //run watch task to compile jsy to js",
   "main": "index.js",
   "keywords": [
