@@ -26,6 +26,10 @@ table.message-motification-table p {
     padding-right: 10px;
 }
 
+table.message-motification-table p .date {
+    color: #c5c5c5;
+}
+
 div.message-motification-container {
 
     background-image: url("https://www.udg.de/wp-content/uploads/2014/07/location_stage_karlsruhe.jpg");

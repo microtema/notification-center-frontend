@@ -50,13 +50,13 @@ var MessageNotificationTable = React.createClass({
             <thead>
             <tr>
                 <th className="index">#</th>
-                <th className="text-left">Message Notification Portal</th>
-                <th className="dropdown-toggle" title="Select/Unselect all messages">
+                <th className="text-left">Notification Portal</th>
+                <th className="dropdown-toggle" title="Select/Unselect all notifications">
                     <a href="#" onClick={this.checkEntries}><span className={this.state.checked ? 'glyphicon glyphicon-check': 'glyphicon glyphicon-unchecked'} aria-hidden="true"></span></a>
                 </th>
-                <th className="action" title="Mark all selected messages as read"><a href="#" onClick={this.markCheckedEntries}><span
+                <th className="action" title="Mark all selected notifications as read"><a href="#" onClick={this.markCheckedEntries}><span
                     className="glyphicon glyphicon-bookmark" aria-hidden="true"></span></a></th>
-                <th className="action" title="Delete all selected messages"><a href="#" onClick={this.deleteCheckedEntries}><span
+                <th className="action" title="Delete all selected notifications"><a href="#" onClick={this.deleteCheckedEntries}><span
                     className="glyphicon glyphicon-remove" aria-hidden="true"></span></a></th>
             </tr>
             </thead>
