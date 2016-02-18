@@ -50,7 +50,7 @@ var MessageNotificationTable = React.createClass({
             <thead>
             <tr>
                 <th className="index">#</th>
-                <th className="text-left">Notification Portal</th>
+                <th className="text-left">Display user notifications</th>
                 <th className="dropdown-toggle" title="Select/Unselect all notifications">
                     <a href="#" onClick={this.checkEntries}><span className={this.state.checked ? 'glyphicon glyphicon-check': 'glyphicon glyphicon-unchecked'} aria-hidden="true"></span></a>
                 </th>
