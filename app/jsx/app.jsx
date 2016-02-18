@@ -2,92 +2,136 @@
 
 var MessageNotificationApp = React.createClass({
     render: function () {
-        return <div className="container">
+        return <div className="container message-motification-container">
             <MessageNotificationHeader />
             <MessageNotificationActionBar />
-            <MessageNotificationTable />
+            <MessageNotificationTable filterText=""/>
         </div>
     }
 });
 
 var MessageNotificationHeader = React.createClass({
     render: function () {
-        return <div className="row text-center"><h2>Message Notification Portal</h2></div>
+        return <div className="row message-motification-header">
+            <img className="pull-left" src="img/udg-logo.png" border="2"/>
+            <h6 className="pull-right">designedbymario</h6>
+        </div>
+    }
+});
+
+var MessageEntry = React.createClass({
+
+    checkEntry: function (e) {
+        dispatcher.dispatch({type: 'check', data: {id: this.props.data.id, checked: !this.props.data.checked}});
+    },
+
+    markEntry: function (e) {
+        dispatcher.dispatch({type: 'mark', data: {id: this.props.data.id}});
+    },
+
+    deleteEntry: function (e) {
+        dispatcher.dispatch({type: 'delete', data: this.props.data});
+    },
+
+    render: function () {
+        return <tr >
+            <td className={this.props.data.type == 'UNREAD' ? 'danger index' : 'active index'}>
+                <small>{this.props.data.index + 1}</small>
+            </td>
+            <td className="text-left description">
+                <div className="paragraphs">
+                    <div className="row">
+                        <div className="span4">
+                            <div className="clearfix content-heading">
+                                <img className="pull-left img-responsive" src={this.props.data.image}/>
+                                <p><strong>{this.props.data.title}</strong> <span className="date"><small>{this.props.data.pubDate}
+                                </small></span></p>
+                                <p>{this.props.data.description}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td className="dropdown-toggle">
+                <a href="#"><input type="checkbox" checked={this.props.data.checked} onChange={this.checkEntry}/></a>
+            </td>
+            <td className="action">
+                <a href="#" onClick={this.markEntry}><span className="glyphicon glyphicon-eye-open"
+                                                           aria-hidden="true"></span></a>
+            </td>
+            <td className="action">
+                <a href="#" onClick={this.deleteEntry}><span className="glyphicon glyphicon-remove"
+                                                             aria-hidden="true"></span></a>
+            </td>
+        </tr>
     }
 });
 
 var MessageNotificationTable = React.createClass({
+
+    componentDidMount: function () {
+        dispatcher.dispatch({type: 'all'});
+    },
+
+    componentWillMount: function () {
+        emitter.on('changed', function (entries) {
+            this.setState({entries: entries});
+        }.bind(this));
+    },
+
+    getInitialState: function () {
+        return {entries: [], checked: false};
+    },
+
+    markCheckedEntries: function () {
+        dispatcher.dispatch({type: 'mark.checked'});
+    },
+
+    deleteCheckedEntries: function () {
+        dispatcher.dispatch({type: 'delete.checked'});
+    },
+
+    checkEntries: function (e) {
+
+        this.setState({checked: !this.state.checked});
+        dispatcher.dispatch({type: 'check.all', data: !this.state.checked});
+    },
+
     render: function () {
+
+        var props = this.props;
+        var rows = this.state.entries
+            .filter(function (data) {
+                var filterText = props.filterText.toLocaleLowerCase();
+                for (var p in data) {
+                    if ((data[p] + '').toLocaleLowerCase().indexOf(filterText) > -1) {
+                        return true;
+                    }
+                }
+                return false;
+            })
+            .map(function (data, index) {
+                data.index = index;
+                return <MessageEntry key={data.id} data={data}/>
+            });
+
         return <table className="table table-hover message-motification-table">
             <thead>
             <tr>
                 <th className="index">#</th>
-                <th className="text-left">Message</th>
-                <th className="dropdown-toggle"><input type="checkbox"/></th>
-                <th className="action">&nbsp;</th>
-                <th className="action">&nbsp;</th>
-
+                <th className="text-left">Message Notification Portal</th>
+                <th className="dropdown-toggle"><input type="checkbox" value={this.state.checked}
+                                                       onChange={this.checkEntries}/>
+                </th>
+                <th className="action"><a href="#" onClick={this.markCheckedEntries}><span
+                    className="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a></th>
+                <th className="action"><a href="#" onClick={this.deleteCheckedEntries}><span
+                    className="glyphicon glyphicon-remove" aria-hidden="true"></span></a></th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td className="index">1</td>
-                <td className="text-left">
-                    <div className="paragraphs">
-                        <div className="row">
-                            <div className="span4">
-                                <div className="clearfix content-heading">
-                                    <img className="pull-left img-responsive" src="img/react.png"/>
-                                    <p><strong>React A JAVASCRIPT LIBRARY FOR BUILDING USER INTERFACES</strong></p>
-                                    <p>JUST THE UI
-                                        Lots of people use React as the V in MVC. Since React makes no assumptions about
-                                        the rest of your technology stack, it's easy to try it out on a small feature in
-                                        an existing project.
-                                    </p>
-                                    <p>
-                                        VIRTUAL DOM
-                                        React abstracts away the DOM from you, giving a simpler programming model and
-                                        better performance. React can also render on the server using Node, and it can
-                                        power native apps using React Native.
-                                    </p>
-                                    <p>
-                                        DATA FLOW
-                                        React implements one-way reactive data flow which reduces boilerplate and is
-                                        easier to reason about than traditional data binding.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td className="dropdown-toggle"><input type="checkbox"/></td>
-                <td className="action"><span className="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
-                <td className="action"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span></td>
-            </tr>
-            <tr className="warning">
-                <td className="index ">2</td>
-                <td className="text-left">
-                    <div className="paragraphs">
-                        <div className="row">
-                            <div className="span4">
-                                <div className="clearfix content-heading">
-                                    <img className="pull-left img-responsive" src="img/html5.gif"/>
-                                    <p><strong>HTML5</strong></p>
-                                    <p> HTML5 is a markup language used for structuring and presenting content on the World Wide Web. It was finalized, and published, on 28 October 2014 by the World Wide Web Consortium (W3C).[2][3] This is the fifth revision of the HTML standard since the inception of the World Wide Web. The previous version, HTML 4, was standardized in 1997.
-
-                                        Its core aims are to improve the language with support for the latest multimedia while keeping it easily readable by humans and consistently understood by computers and devices (web browsers, parsers, etc.). HTML5 is intended to subsume not only HTML 4, but also XHTML 1 and DOM Level 2 HTML.[4]
-
-                                        Following its immediate predecessors HTML 4.01 and XHTML 1.1, HTML5 is a response to the fact that the HTML and XHTML in common use on the World Wide Web have a mixture of features introduced by various specifications, along with those introduced by software products such as web browsers and those established by common practice.[5] It is also an attempt to define a single markup language that can be written in either HTML or XHTML. It includes detailed processing models to encourage more interoperable implementations; it extends, improves and rationalizes the markup available for documents, and introduces markup and application programming interfaces (APIs) for complex web applications.[6] For the same reasons, HTML5 is also a potential candidate for cross-platform mobile applications. Many features of HTML5 have been designed with low-powered devices such as smartphones and tablets taken in to consideration. In December 2011, research firm Strategy Analytics forecast sales of HTML5 compatible phones would top 1 billion in 2013.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td className="dropdown-toggle"><input type="checkbox"/></td>
-                <td className="action"><span className="glyphicon glyphicon-eye-open" aria-hidden="true"></span></td>
-                <td className="action"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span></td>
-            </tr>
+            {rows}
             </tbody>
         </table>
     }
@@ -95,6 +139,7 @@ var MessageNotificationTable = React.createClass({
 
 
 var MessageNotificationActionBar = React.createClass({
+
     render: function () {
         return <nav className="navbar navbar-default">
             <div className="container-fluid">
@@ -111,19 +156,115 @@ var MessageNotificationActionBar = React.createClass({
                         <li className="active"><a className="navbar-brand" href="#">0</a></li>
                         <li className="active"><a className="navbar-brand" href="#"><span
                             className="glyphicon glyphicon-retweet" aria-hidden="true"></span></a></li>
-                        <li className="dropdown">
-                            <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button"
-                               aria-haspopup="true" aria-expanded="false">Action<span className="caret"></span></a>
-                            <ul className="dropdown-menu">
-                                <li><a href="#"><span className="glyphicon glyphicon-remove" aria-hidden="true"></span>  Delete selected</a></li>
-                                <li><a href="#"><span className="glyphicon glyphicon-eye-open" aria-hidden="true"></span>  Mark selected as readed</a></li>
-                            </ul>
-                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
     }
 });
+
+var MessageNotificationStore = function () {
+
+    this.entries = [];
+    this.server = '/rest';
+
+    dispatcher.register(function (payload) {
+        console.info('on event: ', payload.type);
+
+        switch (payload.type) {
+            case 'check.all' :
+                this.checkAllEntries(payload);
+                break;
+            case 'check' :
+                this.checkEntry(payload);
+                break;
+            case 'mark' :
+                this.markEntry(payload);
+                break;
+            case 'mark.checked' :
+                this.markCheckedEntries();
+                break;
+            case 'delete' :
+                this.deleteEntry(payload);
+                break;
+            case 'delete.checked' :
+                this.deleteCheckedEntries();
+                break;
+            case 'all' :
+                this.request();
+                break;
+        }
+    }.bind(this));
+
+    this._notify = function () {
+        console.info('notify: ', this.entries);
+
+        emitter.emit('changed', this.entries);
+    };
+
+    this.markEntry = function (payload) {
+
+        _.find(this.entries, {id: payload.data.id}).type = 'READED';
+
+        this._notify();
+    };
+
+    this.checkEntry = function (payload) {
+
+        _.find(this.entries, {id: payload.data.id}).checked = payload.data.checked;
+
+        this._notify();
+    };
+
+    this.deleteEntry = function (payload) {
+        console.info('deleteEntry: ', payload.data);
+
+        this.entries = _.without(this.entries, payload.data);
+
+        this._notify();
+    };
+
+    this.deleteCheckedEntries = function () {
+        console.info('deleteCheckedEntries: ');
+
+        var checkedEntry = null;
+        while(checkedEntry = _.find(this.entries, function(data){return data.checked})){
+            this.entries = _.without(this.entries, checkedEntry);
+        }
+        this._notify();
+    };
+
+    this.checkAllEntries = function (payload) {
+        console.info('checkAllEntries: ', payload.data);
+
+        _.each(this.entries, function (data) {
+            data.checked = payload.data;
+        });
+
+        this._notify();
+    };
+
+    this.markCheckedEntries = function () {
+        console.info('markCheckedEntries: ');
+        _.each(this.entries, function (data) {
+            if (data.checked) {
+                data.type = 'READED';
+            }
+        });
+
+        this._notify();
+    };
+
+    this.request = function () {
+        $.get(this.server + '/data.json', function (entries) {
+            this.entries = entries;
+            this._notify();
+        }.bind(this));
+    };
+};
+
+var emitter = new EventEmitter();
+var dispatcher = new Flux.Dispatcher();
+var store = new MessageNotificationStore();
 
 ReactDOM.render(<MessageNotificationApp />, document.getElementById('container'));

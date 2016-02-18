@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--link rel="shortcut icon" href="https://www.udg.de/wp-content/uploads/2013/12/favicon_16x16.ico?143410" /-->
     <title>Message Notification Portal</title>
     <script src="../bower_components/react/react.js"></script>
     <script src="../bower_components/react/react-dom.js"></script>
@@ -17,20 +18,47 @@
     <link href="../bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css"/>
 
     <style>
-        table.message-motification-table .index{
-            width: 30px;
+        table.message-motification-table {
+            background-color: #fdfdfd;
         }
-        table.message-motification-table .dropdown-toggle{
+        table.message-motification-table .index{
             width: 20px;
         }
+
+        table.message-motification-table td.description{
+            padding-left: 25px;
+        }
+
+        table.message-motification-table .dropdown-toggle{
+            padding-right: 10px;
+        }
+
         table.message-motification-table .action{
             width: 30px;
         }
+
         table.message-motification-table img{
             margin: 5px 10px;
         }
+
         table.message-motification-table p{
             padding-right: 10px;
+        }
+
+        div.message-motification-container {
+
+            background-image: url("https://www.udg.de/wp-content/uploads/2014/07/location_stage_karlsruhe.jpg");
+        }
+
+        div.message-motification-header{
+            height: 90px;
+            padding: 10px;
+        }
+
+        div.message-motification-header h6{
+            color: #ffffff;
+            padding-right: 10px;
+            padding-top: 55px;
         }
     </style>
 
