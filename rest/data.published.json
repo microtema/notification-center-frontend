@@ -1,0 +1,10 @@
+[
+  {
+    "id": 4,
+    "title":"Apache Camel",
+    "type":"UNREAD",
+    "image":"img/apache-camel.png",
+    "description": "Apache Camel is a rule-based routing and mediation engine that provides a Java object-based implementation of the Enterprise Integration Patterns using an API (or declarative Java Domain Specific Language) to configure routing and mediation rules. The domain-specific language means that Apache Camel can support type-safe smart completion of routing rules in an integrated development environment using regular Java code without large amounts of XML configuration files, though XML configuration inside Spring is also supported. Camel is often used with Apache ServiceMix, Apache ActiveMQ and Apache CXF in service-oriented architecture infrastructure projects.",
+    "pubDate": "20.02.2010"
+  }
+]

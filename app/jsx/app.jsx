@@ -71,7 +71,7 @@ var MessageEntry = React.createClass({
 var MessageNotificationTable = React.createClass({
 
     componentDidMount: function () {
-        dispatcher.dispatch({type: 'all'});
+        dispatcher.dispatch({type: 'request.all'});
     },
 
     componentWillMount: function () {
@@ -140,6 +140,14 @@ var MessageNotificationTable = React.createClass({
 
 var MessageNotificationActionBar = React.createClass({
 
+    requestPublished: function () {
+        dispatcher.dispatch({type: 'request.published'});
+    },
+
+    requestAll: function () {
+        dispatcher.dispatch({type: 'request.all'});
+    },
+
     render: function () {
         return <nav className="navbar navbar-default">
             <div className="container-fluid">
@@ -153,8 +161,9 @@ var MessageNotificationActionBar = React.createClass({
                         </div>
                     </form>
                     <ul className="nav navbar-nav navbar-right">
-                        <li className="active"><a className="navbar-brand" href="#">0</a></li>
-                        <li className="active"><a className="navbar-brand" href="#"><span
+                        <li className="active"><a onClick={this.requestPublished} className="navbar-brand"
+                                                  href="#">0</a></li>
+                        <li className="active"><a onClick={this.requestAll} className="navbar-brand" href="#"><span
                             className="glyphicon glyphicon-retweet" aria-hidden="true"></span></a></li>
                     </ul>
                 </div>
@@ -166,7 +175,22 @@ var MessageNotificationActionBar = React.createClass({
 var MessageNotificationStore = function () {
 
     this.entries = [];
-    this.server = '/rest';
+    this.serverUrl = {
+        'dev': {
+            '/rest/message': '/rest/data.json',
+            '/rest/message/type/PUBLISHED': '/rest/data.published.json'
+        },
+        'production': {
+            '/rest/message': '/rest/message',
+            '/rest/message/type/PUBLISHED': '/rest/message/type/PUBLISHED'
+        },
+        'localhost': {
+            '/rest/message': 'http://localhost:8090/rest/message',
+            '/rest/message/type/PUBLISHED': 'http://localhost:8090/message/type/PUBLISHED'
+        }
+    };
+
+    this.restUrl = this.serverUrl['dev'];
 
     dispatcher.register(function (payload) {
         console.info('on event: ', payload.type);
@@ -190,7 +214,10 @@ var MessageNotificationStore = function () {
             case 'delete.checked' :
                 this.deleteCheckedEntries();
                 break;
-            case 'all' :
+            case 'request.published' :
+                this.requestPublished();
+                break;
+            case 'request.all' :
                 this.request();
                 break;
         }
@@ -228,7 +255,9 @@ var MessageNotificationStore = function () {
         console.info('deleteCheckedEntries: ');
 
         var checkedEntry = null;
-        while(checkedEntry = _.find(this.entries, function(data){return data.checked})){
+        while (checkedEntry = _.find(this.entries, function (data) {
+            return data.checked
+        })) {
             this.entries = _.without(this.entries, checkedEntry);
         }
         this._notify();
@@ -256,11 +285,18 @@ var MessageNotificationStore = function () {
     };
 
     this.request = function () {
-        $.get(this.server + '/data.json', function (entries) {
+        $.get(this.restUrl['/rest/message'], function (entries) {
             this.entries = entries;
             this._notify();
         }.bind(this));
     };
+
+    this.requestPublished = function () {
+        $.get(this.restUrl['/rest/message/type/PUBLISHED'], function (entries) {
+            this.entries = _.union(this.entries, entries);
+            this._notify();
+        }.bind(this));
+    }
 };
 
 var emitter = new EventEmitter();
