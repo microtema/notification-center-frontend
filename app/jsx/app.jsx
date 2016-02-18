@@ -44,7 +44,7 @@ var MessageEntry = React.createClass({
                         <div className="span4">
                             <div className="clearfix content-heading">
                                 <img className="pull-left img-responsive" src={this.props.data.image}/>
-                                <p><strong>{this.props.data.title}</strong> <span className="date"><small>{this.props.data.pubDate}
+                                <p><strong>{this.props.data.title}</strong> <span className="date"><small>{moment(this.props.data.pubDate).format('LLLL')}
                                 </small></span></p>
                                 <p>{this.props.data.description}
                                 </p>
@@ -76,7 +76,7 @@ var MessageNotificationTable = React.createClass({
 
     componentWillMount: function () {
         emitter.on('changed', function (entries) {
-            this.setState({entries: entries});
+            this.setState({entries: entries, countUnreaded: 0});
         }.bind(this));
     },
 
@@ -140,8 +140,15 @@ var MessageNotificationTable = React.createClass({
 
 var MessageNotificationActionBar = React.createClass({
 
-    requestPublished: function () {
-        dispatcher.dispatch({type: 'request.published'});
+    componentWillMount: function () {
+        emitter.on('unread.count', function (count) {
+            console.info('unread.count: ', count);
+            this.setState({countUnreaded: count});
+        }.bind(this));
+    },
+
+    getInitialState: function () {
+        return {countUnreaded: 0};
     },
 
     requestAll: function () {
@@ -161,8 +168,8 @@ var MessageNotificationActionBar = React.createClass({
                         </div>
                     </form>
                     <ul className="nav navbar-nav navbar-right">
-                        <li className="active"><a onClick={this.requestPublished} className="navbar-brand"
-                                                  href="#">0</a></li>
+                        <li className="active"><a onClick={this.requestAll} className="navbar-brand"
+                                                  href="#">{this.state.countUnreaded}</a></li>
                         <li className="active"><a onClick={this.requestAll} className="navbar-brand" href="#"><span
                             className="glyphicon glyphicon-retweet" aria-hidden="true"></span></a></li>
                     </ul>
@@ -172,25 +179,87 @@ var MessageNotificationActionBar = React.createClass({
     }
 });
 
+var SsEventSource = function () {
+
+    this.sseUrl = endpoint['localhost'];
+
+    this.init = function () {
+
+        var source = null;
+        if (!!window.EventSource) {
+            source = new EventSource(this.sseUrl['/sse']());
+        } else {
+            console.log('EventSource is not supported');
+            return
+        }
+
+        source.addEventListener('message', function (e) {
+
+            clearTimeout(this.timerId);
+            this.timerId = setTimeout(function () {
+                console.log('on.message', e);
+                dispatcher.dispatch({type: 'update.unreaded.count'});
+            }, 1000);
+
+        }, false);
+
+        source.addEventListener('open', function (e) {
+            console.log('open', e);
+        }, false);
+
+        source.addEventListener('error', function (e) {
+            if (e.readyState == EventSource.CLOSED) {
+            } else {
+            }
+            console.log('error', e);
+        }, false);
+    };
+
+    this.init();
+};
+
+var endpoint = (function () {
+    return {
+        'dev': {
+            '/rest/message': function () {
+                return '/rest/data.json'
+            },
+            '/rest/message/type': function () {
+                return '/rest/data.unread.json'
+            },
+            '/sse': function () {
+                return '/sse'
+            }
+        },
+        'production': {
+            '/rest/message': function (param) {
+                return '/rest/message/' + (param || '')
+            },
+            '/rest/message/type': function (param) {
+                return '/rest/message/type/' + (param || '')
+            },
+            '/sse': function () {
+                return '/sse'
+            }
+        },
+        'localhost': {
+            '/rest/message': function (param) {
+                return 'http://localhost:8090/rest/message/' + (param || '')
+            },
+            '/rest/message/type': function (param) {
+                return 'http://localhost:8090/rest/message/type/' + (param || '')
+            },
+            '/sse': function (param) {
+                return 'http://localhost:8090/sse' + (param || '')
+            }
+        }
+    };
+})();
+
 var MessageNotificationStore = function () {
 
     this.entries = [];
-    this.serverUrl = {
-        'dev': {
-            '/rest/message': '/rest/data.json',
-            '/rest/message/type/PUBLISHED': '/rest/data.published.json'
-        },
-        'production': {
-            '/rest/message': '/rest/message',
-            '/rest/message/type/PUBLISHED': '/rest/message/type/PUBLISHED'
-        },
-        'localhost': {
-            '/rest/message': 'http://localhost:8090/rest/message',
-            '/rest/message/type/PUBLISHED': 'http://localhost:8090/message/type/PUBLISHED'
-        }
-    };
-
-    this.restUrl = this.serverUrl['dev'];
+    this.restUrl = endpoint['localhost'];
 
     dispatcher.register(function (payload) {
         console.info('on event: ', payload.type);
@@ -214,11 +283,11 @@ var MessageNotificationStore = function () {
             case 'delete.checked' :
                 this.deleteCheckedEntries();
                 break;
-            case 'request.published' :
-                this.requestPublished();
-                break;
             case 'request.all' :
                 this.request();
+                break;
+            case 'update.unreaded.count' :
+                this.updateUnreadedCount();
                 break;
         }
     }.bind(this));
@@ -227,13 +296,10 @@ var MessageNotificationStore = function () {
         console.info('notify: ', this.entries);
 
         emitter.emit('changed', this.entries);
-    };
 
-    this.markEntry = function (payload) {
-
-        _.find(this.entries, {id: payload.data.id}).type = 'READED';
-
-        this._notify();
+        emitter.emit('unread.count', _.filter(this.entries, function (data) {
+            return data.type == 'UNREAD'
+        }).length);
     };
 
     this.checkEntry = function (payload) {
@@ -246,21 +312,41 @@ var MessageNotificationStore = function () {
     this.deleteEntry = function (payload) {
         console.info('deleteEntry: ', payload.data);
 
-        this.entries = _.without(this.entries, payload.data);
-
-        this._notify();
+        $.ajax({
+            url: this.restUrl['/rest/message'](payload.data.id),
+            type: 'DELETE',
+            success: function (data) {
+                this.entries = _.without(this.entries, payload.data);
+                this._notify();
+            }.bind(this)
+        });
     };
 
     this.deleteCheckedEntries = function () {
-        console.info('deleteCheckedEntries: ');
 
-        var checkedEntry = null;
-        while (checkedEntry = _.find(this.entries, function (data) {
-            return data.checked
-        })) {
-            this.entries = _.without(this.entries, checkedEntry);
-        }
-        this._notify();
+        var checkedEntries = _.filter(this.entries, function (data) {
+            return data.checked === true
+        });
+
+        var entriesIds = _.map(checkedEntries, function (data) {
+            return data.id
+        });
+
+        console.info('deleteCheckedEntries', entriesIds);
+
+        $.ajax({
+            url: this.restUrl['/rest/message'](entriesIds.join(',')),
+            type: 'DELETE',
+            success: function (data) {
+
+                for (var index = 0; index < checkedEntries.length; index++) {
+                    this.entries = _.without(this.entries, checkedEntries[index]);
+                }
+
+                this._notify();
+
+            }.bind(this)
+        });
     };
 
     this.checkAllEntries = function (payload) {
@@ -273,34 +359,60 @@ var MessageNotificationStore = function () {
         this._notify();
     };
 
+    this.markEntry = function (payload) {
+
+        this._markCheckedEntries([payload.data]);
+    };
+
     this.markCheckedEntries = function () {
-        console.info('markCheckedEntries: ');
-        _.each(this.entries, function (data) {
-            if (data.checked) {
-                data.type = 'READED';
-            }
+
+        this._markCheckedEntries(_.filter(this.entries, function (data) {
+            return data.checked === true
+        }));
+    };
+
+    this._markCheckedEntries = function (checkedEntries) {
+
+        var entriesIds = _.map(checkedEntries, function (data) {
+            return data.id
         });
 
-        this._notify();
+        console.info('markCheckedEntries', entriesIds);
+
+        $.ajax({
+            url: this.restUrl['/rest/message'](entriesIds.join(',')),
+            type: 'POST',
+            success: function (data) {
+
+                for (var index = 0; index < checkedEntries.length; index++) {
+                    _.find(this.entries, checkedEntries[index]).type = 'READ';
+                }
+
+                this._notify();
+
+            }.bind(this)
+        });
+
     };
 
     this.request = function () {
-        $.get(this.restUrl['/rest/message'], function (entries) {
+        $.get(this.restUrl['/rest/message'](), function (entries) {
             this.entries = entries;
             this._notify();
         }.bind(this));
     };
 
-    this.requestPublished = function () {
-        $.get(this.restUrl['/rest/message/type/PUBLISHED'], function (entries) {
-            this.entries = _.union(this.entries, entries);
-            this._notify();
+    this.updateUnreadedCount = function () {
+        $.get(this.restUrl['/rest/message/type']('UNREAD'), function (entries) {
+            emitter.emit('unread.count', entries.length);
         }.bind(this));
     }
+
 };
 
 var emitter = new EventEmitter();
 var dispatcher = new Flux.Dispatcher();
 var store = new MessageNotificationStore();
+var sse = new SsEventSource();
 
 ReactDOM.render(<MessageNotificationApp />, document.getElementById('container'));
