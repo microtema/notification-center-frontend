@@ -39,9 +39,7 @@ var MessageNotificationStore = function () {
 
         emitter.emit('changed', this.entries);
 
-        emitter.emit('unread.count', _.filter(this.entries, function (data) {
-            return data.type == 'UNREAD'
-        }).length);
+        this.updateUnreadedCount();
     };
 
     this.checkEntry = function (payload) {
