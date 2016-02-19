@@ -34,7 +34,7 @@ var MessageNotificationActionBar = React.createClass({
                     <ul className="nav navbar-nav navbar-right">
 
                         <li className={this.state.active ? 'active': ''}
-                            title={this.state.countUnreaded > 0 ? 'You have '+this.state.countUnreaded + ' unread notification': 'You have no unread notification'}>
+                            title={this.state.countUnreaded > 0 ? 'You have '+this.state.countUnreaded + ' unread notifications': 'You have no unread notification'}>
                             <a onClick={this.requestAll} className="navbar-brand" href="#">
                                 <span className="glyphicon glyphicon-bell"
                                       aria-hidden="true"></span>
