@@ -32,7 +32,7 @@ table.message-motification-table p .date {
 
 div.message-motification-container {
 
-    background-image: url("https://www.udg.de/wp-content/uploads/2014/07/location_stage_karlsruhe.jpg");
+    background-color: #808285;
 }
 
 div.message-motification-header {
@@ -44,4 +44,10 @@ div.message-motification-header h6 {
     color: #ffffff;
     padding-right: 10px;
     padding-top: 55px;
+}
+
+.logo {
+    padding-left: 10px;
+    color: #ffffff;
+    font-style: italic;
 }
